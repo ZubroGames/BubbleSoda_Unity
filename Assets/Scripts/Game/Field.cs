@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Field : MonoBehaviour {
 
-	public float cell_size = 0.5f;
+	public float cell_size = 1.0f;
 	public int field_width = 11;
 
 

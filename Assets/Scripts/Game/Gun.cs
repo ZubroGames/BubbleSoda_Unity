@@ -3,9 +3,11 @@ using System.Collections;
 
 public class Gun : MonoBehaviour {
 
-	public float move_speed = 10.0f;
+	public float move_speed    = 20.0f;
+	public float rotate_speed  = 180.0f;
+	public float max_angle     = 45.0f;
 
-	private float left_border = 0.0f;
+	private float left_border  = 0.0f;
 	private float right_border = 0.0f;
 
 	// Use this for initialization
@@ -16,21 +18,16 @@ public class Gun : MonoBehaviour {
 	// Update is called once per frame
 	void Update()
 	{	
-		// mouse
-		Vector3 relative_mouse_position = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, - Camera.main.transform.position.z));
-		Vector3 relative_position = relative_mouse_position - transform.position;
-		float angle = Vector3.Angle (Vector3.right, relative_position);
-
-		transform.rotation = Quaternion.AngleAxis(angle - 90, Vector3.forward);
-
-		// keyboard
-		if (Input.GetKey(KeyCode.A))
+		float horizontal_force = Input.GetAxis("Horizontal");
+		if (horizontal_force != 0)
 		{
-			Move(Vector3.left);
+			Move(horizontal_force);
 		}
-		if (Input.GetKey(KeyCode.D))
+
+		float rotation_force = - Input.GetAxis("Z Axis");
+		if (rotation_force != 0)
 		{
-			Move(Vector3.right);
+			Rotate(rotation_force);
 		}
 	}
 
@@ -43,16 +40,31 @@ public class Gun : MonoBehaviour {
 		right_border = right + width / 2; 
 	}
 
-	void Move(Vector3 direction)
+	void Move(float force)
 	{
+		// calc
+		Vector3 movement = Vector3.right * force * move_speed * Time.deltaTime;
 		// move
-		transform.Translate(direction * move_speed * Time.deltaTime, Space.World);
-
+		transform.Translate(movement, Space.World);
 		// check borders
 		if (transform.position.x < left_border || transform.position.x > right_border)
 		{
 			// back
-			transform.Translate(-direction * move_speed * Time.deltaTime, Space.World);
+			transform.Translate(-movement, Space.World);
+		}
+	}
+
+	void Rotate(float force)
+	{
+		// calc
+		float rotation = force * rotate_speed * Time.deltaTime;
+		// rotate
+		transform.Rotate(0, 0, rotation);
+		// check limits
+		if (transform.eulerAngles.z > max_angle && transform.eulerAngles.z < 360 - max_angle)
+		{
+			// back
+			transform.Rotate(0, 0, -rotation);
 		}
 	}
 }
